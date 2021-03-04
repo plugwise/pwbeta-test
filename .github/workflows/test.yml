@@ -84,7 +84,7 @@ jobs:
           ${{ env.CACHE_VERSION}}-${{ runner.os }}
           ${{ env.CACHE_VERSION}}
     - name: Fail job if Python cache restore failed
-      if: steps.cache-venv.outputs.cache-hit != 'true'
+      if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
         echo "Failed to restore Python ${{ env.DEFAULT_PYTHON }} virtual environment from cache"
         exit 1
