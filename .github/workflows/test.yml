@@ -4,7 +4,7 @@
 name: Test with HA-core
 
 env:
-  CACHE_VERSION: 4
+  CACHE_VERSION: 5
   DEFAULT_PYTHON: 3.9
 
 on: 
@@ -46,6 +46,7 @@ jobs:
     - name: Create HA-core Python virtual environment
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
+        git config pull.rebase true
         git clone https://github.com/home-assistant/core.git ~/ha-core
         cd ~/ha-core
         git checkout dev
@@ -55,9 +56,9 @@ jobs:
     - name: Reset git
       if: steps.cache-hacore.outputs.cache-hit == 'true'
       run: |
+        git config pull.rebase true
         cd ~/ha-core
         git reset --hard
-        git pull.rebase true
         git pull
 
 
