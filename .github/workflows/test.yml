@@ -4,7 +4,7 @@
 name: Latest commit
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
   DEFAULT_PYTHON: 3.9
 
 on: 
@@ -43,10 +43,16 @@ jobs:
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/home-assistant/core.git ha-core
+        git checkout dev
         cd ha-core
         script/setup
         . venv/bin/activate
         pip install -r requirements_test.txt
+    - name: Remove current code and tests
+      run: |
+        cd ha-core
+        git reset --hard
+        git pull
     - name: Remove current code and tests
       run: |
         cd ha-core
@@ -56,6 +62,13 @@ jobs:
         cp -r custom_components/plugwise ha-core/homeassistant/components/
         cp -r tests/fixtures/plugwise ha-core/tests/fixtures/
         cp -r tests/components/plugwise ha-core/tests/components/
+    - name: Prepare requirements (be)for(e) plugwise
+      run: |
+        cd ha-core
+        . venv/bin/activate
+        mkdir ~/tmp
+        egrep -i "sqlalchemy" > ~/tmp/requirements_test_extra.txt
+        pip install -r ~/tmp/requirements_test_extra.txt
     - name: Run pytest
       run: |
         cd ha-core
