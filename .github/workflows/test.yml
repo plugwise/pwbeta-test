@@ -18,7 +18,7 @@ jobs:
   # Prepare default python version environment
   ha-core-prepare:
     runs-on: ubuntu-latest
-    name: Setup and test against HA-core
+    name: Setup for HA-core
     steps:
     - name: Check out committed code
       uses: actions/checkout@v2
@@ -54,6 +54,9 @@ jobs:
 
   # Reset GIT, preload and execute tests
   ha-core-test:
+    runs-on: ubuntu-latest
+    name: Restore and test against HA-core
+    steps:
     - name: Check out committed code
       uses: actions/checkout@v2
     - name: Set up Python ${{ env.DEFAULT_PYTHON }}
