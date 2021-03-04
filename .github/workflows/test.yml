@@ -56,6 +56,7 @@ jobs:
   ha-core-test:
     runs-on: ubuntu-latest
     name: Restore and test against HA-core
+    needs: ha-core-prepare
     steps:
     - name: Check out committed code
       uses: actions/checkout@v2
