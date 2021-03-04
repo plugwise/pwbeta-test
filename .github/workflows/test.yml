@@ -46,9 +46,9 @@ jobs:
     - name: Create HA-core Python virtual environment
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
-        git config pull.rebase true
         git clone https://github.com/home-assistant/core.git ~/ha-core
         cd ~/ha-core
+        git config pull.rebase true
         git checkout dev
         script/setup
         . venv/bin/activate
@@ -56,8 +56,8 @@ jobs:
     - name: Reset git
       if: steps.cache-hacore.outputs.cache-hit == 'true'
       run: |
-        git config pull.rebase true
         cd ~/ha-core
+        git config pull.rebase true
         git reset --hard
         git pull
 
