@@ -60,6 +60,8 @@ jobs:
         git config pull.rebase true
         git reset --hard
         git pull
+        echo "Last commit message:"
+        git log -1 --pretty=%B
 
 
   # Reset GIT, preload and execute tests
@@ -99,6 +101,8 @@ jobs:
     - name: Remove current code and tests
       run: |
         cd ~/ha-core
+        echo "Last commit message:"
+        git log -1 --pretty=%B
         rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
     - name: Copy code and tests
       run: |
