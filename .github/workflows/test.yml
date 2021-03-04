@@ -4,7 +4,7 @@
 name: Test with HA-core
 
 env:
-  CACHE_VERSION: 2
+  CACHE_VERSION: 3
   DEFAULT_PYTHON: 3.9
 
 on: 
@@ -74,6 +74,7 @@ jobs:
       run: |
         cd ha-core
         . venv/bin/activate
-        pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
+        #pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
+        pip install plugwise==0.8.5
         pytest -rP --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
 
