@@ -4,7 +4,7 @@
 name: Test with HA-core
 
 env:
-  CACHE_VERSION: 3
+  CACHE_VERSION: 4
   DEFAULT_PYTHON: 3.9
 
 on: 
@@ -16,7 +16,7 @@ on:
 
 jobs:
   # Prepare default python version environment
-  ha-core-test:
+  ha-core-prepare:
     runs-on: ubuntu-latest
     name: Setup and test against HA-core
     steps:
@@ -37,45 +37,80 @@ jobs:
           steps.python.outputs.python-version }}-${{
           hashFiles('ha-core/requirements_test.txt') }}
         restore-keys: |
-          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{ steps.python.outputs.python-version }}-${{ hashFiles('ha-core/requirements_test.txt') }}
           ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{ steps.python.outputs.python-version }}-
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}
+          ${{ env.CACHE_VERSION}}
     - name: Create HA-core Python virtual environment
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
-        git clone https://github.com/home-assistant/core.git ha-core
-        cd ha-core
+        git clone https://github.com/home-assistant/core.git ~/ha-core
+        cd ~/ha-core
         git checkout dev
         script/setup
         . venv/bin/activate
         pip install -r requirements_test.txt
+
+
+  # Reset GIT, preload and execute tests
+  ha-core-test:
+    - name: Check out committed code
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+      id: python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON }}
+    - name: Restore base HA-core Python ${{ env.DEFAULT_PYTHON }} virtual environment
+      id: cache-hacore
+      uses: actions/cache@v2
+      with:
+        path: ~/ha-core
+        key: >-
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{
+          steps.python.outputs.python-version }}-${{
+          hashFiles('ha-core/requirements_test.txt') }}
+        restore-keys: |
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{ steps.python.outputs.python-version }}-
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}
+          ${{ env.CACHE_VERSION}}
+    - name: Fail job if Python cache restore failed
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+      run: |
+        echo "Failed to restore Python ${{ env.DEFAULT_PYTHON }} virtual environment from cache"
+        exit 1
     - name: Reset git
       run: |
-        cd ha-core
+        cd ~/ha-core
         git reset --hard
         git pull
     - name: Remove current code and tests
       run: |
-        cd ha-core
+        cd ~/ha-core
         rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
-        #rm -r tests/fixtures/plugwise tests/components/plugwise
     - name: Copy code and tests
       run: |
-        cp -r custom_components/plugwise ha-core/homeassistant/components/
-        cp -r tests/fixtures/plugwise ha-core/tests/fixtures/
-        cp -r tests/components/plugwise ha-core/tests/components/
+        cp -r custom_components/plugwise ~/ha-core/homeassistant/components/
+        cp -r tests/fixtures/plugwise ~/ha-core/tests/fixtures/
+        cp -r tests/components/plugwise ~/ha-core/tests/components/
     - name: Prepare requirements (be)for(e) plugwise
       run: |
-        cd ha-core
+        cd ~/ha-core
         . venv/bin/activate
         mkdir ~/tmp
         egrep -i "sqlalchemy|zeroconf" requirements_test_all.txt > ~/tmp/requirements_test_extra.txt
         pip install -r ~/tmp/requirements_test_extra.txt
-    - name: Run pytest
+    - name: pylint
       run: |
-        cd ha-core
+        cd ~/ha-core
         . venv/bin/activate
-        pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
-        #pip install plugwise==0.8.5
         script/lint
+    - name: pytest
+      run: |
+        cd ~/ha-core
+        . venv/bin/activate
+        pip install $(grep require ~/custom_components/plugwise/manifest.json | cut -f 4 -d '"')
+        #pip install plugwise==0.8.5
         pytest --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
 
