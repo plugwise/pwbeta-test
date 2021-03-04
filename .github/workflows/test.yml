@@ -1,0 +1,94 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Latest commit
+
+env:
+  CACHE_VERSION: 1
+  DEFAULT_PYTHON: 3.9
+
+on: 
+  workflow_dispatch:
+  push:
+#  schedule:
+#    - cron: '0 0 * * 0' # weekly
+# pull_request:
+
+jobs:
+  # Prepare default python version environment
+  prepare:
+    runs-on: ubuntu-latest
+    name: Prepare
+    steps:
+    - name: Check out committed code
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+      id: python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON }}
+    - name: Restore base HA-core Python ${{ env.DEFAULT_PYTHON }} virtual environment
+      id: cache-venv
+      uses: actions/cache@v2
+      with:
+        path: venv
+        key: >-
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-venv-${{
+          steps.python.outputs.python-version }}-${{
+          hashFiles('ha-core/requirements_test.txt') }}
+        restore-keys: |
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{ hashFiles('ha-core/requirements_test.txt') }}
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-
+    - name: Create HA-core Python virtual environment
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/home-assistant/core.git ha-core
+        cd ha-core
+        script/setup
+        . venv/bin/activate
+        pip install -r requirements_test.txt
+
+  black:
+    runs-on: ubuntu-latest
+    name: Check against HA-core
+    needs: prepare
+    steps:
+    - name: Check out committed code
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+      id: python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON }}
+    - name: Restore base HA-core Python ${{ env.DEFAULT_PYTHON }} virtual environment
+      id: cache-venv
+      uses: actions/cache@v2
+      with:
+        path: venv
+        key: >-
+          ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-venv-${{
+          steps.python.outputs.python-version }}-${{
+          hashFiles('ha-core/requirements_test.txt') }}
+    - name: Fail job if Python cache restore failed
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+      run: |
+        echo "Failed to restore Python ${{ env.DEFAULT_PYTHON }} virtual environment from cache"
+        exit 1
+    - name: Remove current code and tests
+      run: |
+        cd ha-core
+        rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
+    - name: Copy code and tests
+      run: |
+        cp -r custom_components/plugwise ha-core/homeassistant/components/
+        cp -r tests/fixtures/plugwise ha-core/tests/fixtures/
+        cp -r tests/components/plugwise ha-core/tests/components/
+    - name: Run pytest
+      run: |
+        cd ha-core
+        . venv/bin/activate
+        pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
+        pytest -rP --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
+
