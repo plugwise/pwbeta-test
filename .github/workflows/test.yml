@@ -56,11 +56,11 @@ jobs:
     - name: Remove current code and tests
       run: |
         cd ha-core
-        #rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
-        rm -r tests/fixtures/plugwise tests/components/plugwise
+        rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
+        #rm -r tests/fixtures/plugwise tests/components/plugwise
     - name: Copy code and tests
       run: |
-        #cp -r custom_components/plugwise ha-core/homeassistant/components/
+        cp -r custom_components/plugwise ha-core/homeassistant/components/
         cp -r tests/fixtures/plugwise ha-core/tests/fixtures/
         cp -r tests/components/plugwise ha-core/tests/components/
     - name: Prepare requirements (be)for(e) plugwise
@@ -74,7 +74,7 @@ jobs:
       run: |
         cd ha-core
         . venv/bin/activate
-        #pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
-        pip install plugwise==0.8.5
+        pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
+        #pip install plugwise==0.8.5
         pytest -rP --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
 
