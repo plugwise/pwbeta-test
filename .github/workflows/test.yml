@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Latest commit
+name: Test with HA-core
 
 env:
   CACHE_VERSION: 2
@@ -18,7 +18,7 @@ jobs:
   # Prepare default python version environment
   ha-core-test:
     runs-on: ubuntu-latest
-    name: Prepare
+    name: Setup and test against HA-core
     steps:
     - name: Check out committed code
       uses: actions/checkout@v2
@@ -43,8 +43,8 @@ jobs:
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/home-assistant/core.git ha-core
-        git checkout dev
         cd ha-core
+        git checkout dev
         script/setup
         . venv/bin/activate
         pip install -r requirements_test.txt
