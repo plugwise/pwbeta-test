@@ -56,10 +56,11 @@ jobs:
     - name: Remove current code and tests
       run: |
         cd ha-core
-        rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
+        #rm -r homeassistant/components/plugwise tests/fixtures/plugwise tests/components/plugwise
+        rm -r tests/fixtures/plugwise tests/components/plugwise
     - name: Copy code and tests
       run: |
-        cp -r custom_components/plugwise ha-core/homeassistant/components/
+        #cp -r custom_components/plugwise ha-core/homeassistant/components/
         cp -r tests/fixtures/plugwise ha-core/tests/fixtures/
         cp -r tests/components/plugwise ha-core/tests/components/
     - name: Prepare requirements (be)for(e) plugwise
