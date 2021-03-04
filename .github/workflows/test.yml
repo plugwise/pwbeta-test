@@ -48,7 +48,7 @@ jobs:
         script/setup
         . venv/bin/activate
         pip install -r requirements_test.txt
-    - name: Remove current code and tests
+    - name: Reset git
       run: |
         cd ha-core
         git reset --hard
@@ -67,7 +67,7 @@ jobs:
         cd ha-core
         . venv/bin/activate
         mkdir ~/tmp
-        egrep -i "sqlalchemy" > ~/tmp/requirements_test_extra.txt
+        egrep -i "sqlalchemy" requirements_test_all.txt > ~/tmp/requirements_test_extra.txt
         pip install -r ~/tmp/requirements_test_extra.txt
     - name: Run pytest
       run: |
