@@ -525,3 +525,4 @@ SERVICE_CONFIGURE_BATTERY = "configure_battery_savings"
 SERVICE_CONFIGURE_SCAN = "configure_scan"
 SERVICE_DEVICE_ADD = "device_add"
 SERVICE_DEVICE_REMOVE = "device_remove"
+

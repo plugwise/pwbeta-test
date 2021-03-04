@@ -58,7 +58,7 @@ CONF_MANUAL_PATH = "Enter Manually"
 CONNECTION_SCHEMA = vol.Schema(
     {
         vol.Required(FLOW_TYPE, default=FLOW_NET): vol.In(
-            {FLOW_NET: f"Network: {SMILE} / {STRETCH}", FLOW_USB: "USB: Stick",}
+            {FLOW_NET: f"Network: {SMILE} / {STRETCH}", FLOW_USB: "USB: Stick", }
         ),
     },
 )
@@ -121,7 +121,7 @@ def _base_gw_schema(discovery_info):
         base_gw_schema[vol.Required(CONF_HOST)] = str
         base_gw_schema[vol.Optional(CONF_PORT, default=DEFAULT_PORT)] = int
         base_gw_schema[vol.Required(CONF_USERNAME, default=SMILE)] = vol.In(
-            {SMILE: FLOW_SMILE, STRETCH: FLOW_STRETCH,}
+            {SMILE: FLOW_SMILE, STRETCH: FLOW_STRETCH, }
         )
 
     base_gw_schema.update({vol.Required(CONF_PASSWORD): str})

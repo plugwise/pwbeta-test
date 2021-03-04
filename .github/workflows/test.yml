@@ -4,7 +4,7 @@
 name: Test with HA-core
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
   DEFAULT_PYTHON: 3.9
 
 on: 
@@ -47,6 +47,7 @@ jobs:
       if: steps.cache-hacore.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/home-assistant/core.git ~/ha-core
+        git remote add upstream https://github.com/home-assistant/core.git
         cd ~/ha-core
         git checkout dev
         script/setup
@@ -57,7 +58,8 @@ jobs:
       run: |
         cd ~/ha-core
         git reset --hard
-        git pull
+        git fetch upstream dev
+        git rebase upstream/dev
 
 
   # Reset GIT, preload and execute tests

@@ -2,7 +2,6 @@
 
 import logging
 
-from plugwise.smile import Smile
 from plugwise.exceptions import PlugwiseException
 
 from homeassistant.const import (
@@ -87,7 +86,7 @@ async def async_setup_entry_gateway(hass, config_entry, async_add_entities):
                     api,
                     coordinator,
                     devices[dev_id][ATTR_NAME],
-                    dev_id, 
+                    dev_id,
                     members,
                     devices[dev_id][PW_MODEL],
                 )
