@@ -27,15 +27,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ env.DEFAULT_PYTHON }}
-    - name: Create HA-core Python virtual environment
-      if: steps.cache-hacore.outputs.cache-hit != 'true'
-      run: |
-        git clone https://github.com/home-assistant/core.git ha-core
-        cd ha-core
-        git checkout dev
-        script/setup
-        . venv/bin/activate
-        pip install -r requirements_test.txt
     - name: Restore base HA-core Python ${{ env.DEFAULT_PYTHON }} virtual environment
       id: cache-hacore
       uses: actions/cache@v2
@@ -48,6 +39,15 @@ jobs:
         restore-keys: |
           ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{ steps.python.outputs.python-version }}-${{ hashFiles('ha-core/requirements_test.txt') }}
           ${{ env.CACHE_VERSION}}-${{ runner.os }}-base-hacore-${{ steps.python.outputs.python-version }}-
+    - name: Create HA-core Python virtual environment
+      if: steps.cache-hacore.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/home-assistant/core.git ha-core
+        cd ha-core
+        git checkout dev
+        script/setup
+        . venv/bin/activate
+        pip install -r requirements_test.txt
     - name: Reset git
       run: |
         cd ha-core
