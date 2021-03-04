@@ -4,5 +4,6 @@
   "documentation": "https://github.com/plugwise/plugwise-beta",
   "requirements": ["plugwise==0.8.2"],
   "codeowners": ["@CoMPaTech","@bouwew","@brefra"],
-  "config_flow": true
+  "config_flow": true,
+  "version": "0.9"
 }
