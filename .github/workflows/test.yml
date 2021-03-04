@@ -76,5 +76,6 @@ jobs:
         . venv/bin/activate
         pip install $(grep require ../custom_components/plugwise/manifest.json | cut -f 4 -d '"')
         #pip install plugwise==0.8.5
-        pytest -rP --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
+        script/lint
+        pytest --cov=homeassistant/components/plugwise/ --cov-report term-missing -- tests/components/plugwise/
 
