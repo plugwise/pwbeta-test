@@ -52,6 +52,12 @@ jobs:
         script/setup
         . venv/bin/activate
         pip install -r requirements_test.txt
+    - name: Reset git
+      if: steps.cache-hacore.outputs.cache-hit == 'true'
+      run: |
+        cd ~/ha-core
+        git reset --hard
+        git pull
 
 
   # Reset GIT, preload and execute tests
@@ -88,11 +94,6 @@ jobs:
       run: |
         echo "Failed to restore Python ${{ env.DEFAULT_PYTHON }} virtual environment from cache"
         exit 1
-    - name: Reset git
-      run: |
-        cd ~/ha-core
-        git reset --hard
-        git pull
     - name: Remove current code and tests
       run: |
         cd ~/ha-core
